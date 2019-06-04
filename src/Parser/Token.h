@@ -46,4 +46,4 @@ std::string Token::token_str(){
     return _token;
 }
 
-#endif /* TOKEN_H */-0
+#endif /* TOKEN_H */

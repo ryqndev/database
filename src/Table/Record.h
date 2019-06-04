@@ -12,20 +12,18 @@ void open_fileW(std::fstream& f, const char filename[]);
 class Record{
     public:
         Record(){
-            record[0] = NULL;
+            MAX = 0;
             recno = -1;
         }
-
         Record(char str[]){
             strcpy(record, str);
         }
         long write(std::fstream& outs);
         long read(std::fstream& ins, long recno);
 
-
         friend std::ostream& operator<<(std::ostream& outs, const Record& r);
     private:
-        static const int MAX = 10;
+        unsigned MAX;
         int recno;
         char record[MAX];
 };
@@ -33,19 +31,17 @@ long Record::write(std::fstream &outs){
     //write to the end of the file.
     long pos = outs.tellp();
 
-    //outs.write(&record[0], sizeof(record));
-    outs.write(record, sizeof(record));
+    outs.write(&record[0], sizeof(record));
+    // outs.write(record, sizeof(record));
 
     return pos;
 }
 long Record::read(std::fstream &ins, long recno){
-    long pos= recno * sizeof(record);
+    long pos = recno * sizeof(record);
     ins.seekg(pos, std::ios_base::beg);
-
 
     ins.read(record, sizeof(record));
     return ins.gcount();
-
 }
 std::ostream& operator<<(std::ostream& outs, const Record& r){
     outs<<r.record;
@@ -74,14 +70,13 @@ void open_fileRW(std::fstream& f, const char filename[]) throw(char*){
     if (!file_exists(filename)){
         f.open(filename, std::fstream::out|std::fstream::binary);
         if (f.fail()){
-            std::cout<<"file open (RW) failed: with out|"<<filename<<"]"<<std::endl;
+            std::cout << "file open (RW) failed: with out|" << filename << "]" << std::endl;
             throw("file RW failed  ");
         }
         else{
             if (debug) std::cout<<"open_fileRW: file created successfully: "<<filename<<std::endl;
         }
-    }
-    else{
+    }else{
         f.open (filename,
             std::fstream::in | std::fstream::out| std::fstream::binary );
         if (f.fail()){

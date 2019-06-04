@@ -9,7 +9,6 @@ struct Parser{
     Parser(std::string query);
 
     unsigned type;
-
 };
 Parser::Parser(std::string query){
     int len = query.length() + 1;
