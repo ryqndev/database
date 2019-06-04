@@ -12,20 +12,20 @@ void open_fileW(std::fstream& f, const char filename[]);
 class Record{
     public:
         Record(){
-            MAX = 0;
+            record = new char[0];
             recno = -1;
         }
-        Record(char str[]){
-            strcpy(record, str);
+        Record(unsigned max){
+            record = new char[max];
+            recno = -1;
         }
         long write(std::fstream& outs);
         long read(std::fstream& ins, long recno);
 
         friend std::ostream& operator<<(std::ostream& outs, const Record& r);
     private:
-        unsigned MAX;
         int recno;
-        char record[MAX];
+        char* record;
 };
 long Record::write(std::fstream &outs){
     //write to the end of the file.
