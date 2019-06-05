@@ -1,6 +1,7 @@
 #ifndef RECORD_H
 #define RECORD_H
 
+#include <map>
 #include <iostream>
 #include <fstream>
 
@@ -26,6 +27,7 @@ class Record{
     private:
         int recno;
         char* record;
+        std::map<std::string, unsigned> location_of; 
 };
 long Record::write(std::fstream &outs){
     //write to the end of the file.
