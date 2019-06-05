@@ -26,7 +26,25 @@ void test_constructor(bool isPublic = true){
 
     students = Table("students", table_setup);
 
-    
+    std::map<std::string, std::string> test_student_1 = {
+        { "firstName", "Ryan" },
+        { "lastName", "Yang" },
+        { "major", "Computer Science" },
+        { "graduationYear", "2021" }
+    };
+    std::map<std::string, std::string> test_student_2 = {
+        { "firstName", "John" },
+        { "lastName", "Doe" },
+        { "major", "Economics" },
+        { "graduationYear", "2022" }
+    };
+
+    students.save_info(test_student_1);
+    students.save_info(test_student_2);
+    students.get_info(0);
+    std::cout << std::endl;
+    students.get_info(1);
+
 }
 
 int main(int argc, char const *argv[]){

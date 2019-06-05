@@ -4,20 +4,20 @@
 int main(int argc, char *argv[])
 {
     std::cout <<std::endl<<std::endl<<std::endl<< "================================" << std::endl;
-    Record list[10] = {"zero",
-                       "one",
-                       "two",
-                       "three",
-                       "four",
-                       "five",
-                       "six",
-                       "seven",
-                       "eight",
-                       "nine"};
-    for (int i = 0; i< 10; i++){
-        std::cout<<list[i]<<std::endl;
-    }
-    save_list(list, 10);
+    // Record list[10] = {"zero",
+    //                    "one",
+    //                    "two",
+    //                    "three",
+    //                    "four",
+    //                    "five",
+    //                    "six",
+    //                    "seven",
+    //                    "eight",
+    //                    "nine"};
+    // for (int i = 0; i< 10; i++){
+    //     std::cout<<list[i]<<std::endl;
+    // }
+    // save_list(list, 10);
 
 
     Record r;

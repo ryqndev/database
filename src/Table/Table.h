@@ -9,13 +9,13 @@
 class Table{
     public:
         Table(std::string);
-        Table(std::string, std::map<std::string, std::string>);
+        Table(std::string, std::map<std::string, std::string>&);
 
-        bool insert_row(std::map<std::string, std::string>);
+        void save_info(std::map<std::string, std::string>&);
+        void get_info(long location);
 
     // TODO - uncomment private after testing
     // private: 
-        static std::map<std::string, unsigned> data_sizes;
         // maps column names to the maps that map a value to a record(s)
         std::map<std::string, std::map<std::string, std::vector<int> > > columns;
 
@@ -25,18 +25,14 @@ class Table{
         
 };
 
-std::map<std::string, unsigned> Table::data_sizes = {
-    { "string", 100 },
-    { "unsigned", 20 },
-};
-
 Table::Table(std::string table_name){
     this->table_name = table_name;
 }
 
-Table::Table(std::string table_name, std::map<std::string, std::string> table_contents){
+Table::Table(std::string table_name, std::map<std::string, std::string>& table_contents){
     this->table_name = table_name;
-    
+    std::map<std::string, EntryLocation> location_of;
+
     //creates individual record for this table's unique row size
     unsigned record_size = 0;
 
@@ -44,16 +40,21 @@ Table::Table(std::string table_name, std::map<std::string, std::string> table_co
     for( auto const& col_data : table_contents ){
         // create map for each column
         this->columns[col_data.first] = std::map<std::string, std::vector<int> >();
-
-        // get size of record
-        record_size += data_sizes[col_data.second];
+        location_of[col_data.first].start = record_size;    // location start in record
+        record_size += record.data_sizes[col_data.second];  // get size of record
+        location_of[col_data.first].end = record_size;      // location end in record
     }
-
-    this->record = Record(record_size);
+    this->record = Record(location_of, record_size);
 }
 
-bool Table::insert_row(std::map<std::string, std::string>){
-
+void Table::save_info(std::map<std::string, std::string>& row){
+    long recno = this->record.write(row);
+}
+void Table::get_info(long location){
+    std::map<std::string, std::string> temp = this->record.read(location);
+    for( auto const& pair : temp ){
+        std::cout << pair.first << " - " << pair.second << std::endl;
+    }
 }
 
 #endif /* TABLE_H */
