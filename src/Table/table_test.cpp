@@ -8,13 +8,14 @@ g++ -std=c++11 table_test.cpp -o table_test
 #include "Table.h"
 #include <iostream>
 
-void test_constructor(bool isPublic = true){
+// isPublic can only be toggled true if entire Table class public
+void test_constructor(bool isPublic = false){
     // testing table constructor without columns
     Table students("students");
 
-    if(isPublic){
-        std::cout << "Table name: " << students.table_name << std::endl;        
-    }
+    // if(isPublic){ 
+    //     std::cout << "Table name: " << students.table_name << std::endl;        
+    // }
 
     // manually set up table info as if it were a sql query
     std::map<std::string, std::string> table_setup = {
@@ -42,7 +43,6 @@ void test_constructor(bool isPublic = true){
     students.save_info(test_student_1);
     students.save_info(test_student_2);
     students.get_info(0);
-    std::cout << std::endl;
     students.get_info(1);
 
 }

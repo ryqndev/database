@@ -14,12 +14,12 @@ void open_fileW(std::fstream& f, const char filename[]);
 class Record{
     public:
         Record():max(0), recno(-1){}
-        Record(std::map<std::string, EntryLocation> location_of, unsigned max):recno(-1){
+        Record(std::map<std::string, EntryLocation> location_of, unsigned max, std::string table_name):recno(-1){
             this->location_of = location_of;
             this->max = max;
-            open_fileRW(this->f, "record_list.bin" );
+            file_name = table_name + ".bin";
+            open_fileRW(this->f, file_name.c_str() );
         }
-        int getRecno(){ return recno; }
 
         std::map<std::string, std::string> read(long recno);
         long write(std::map<std::string, std::string>& entry);
@@ -34,6 +34,7 @@ class Record{
         int recno;
         unsigned max;
         std::fstream f;
+        std::string file_name;
         std::map<std::string, EntryLocation> location_of; 
 
         long write(std::fstream& outs, char* data, unsigned size);
@@ -88,7 +89,7 @@ long Record::write(std::map<std::string, std::string>& entry){
         data[location_of[pair.first].start + strlen(temp) + 1 ] = '\0';
     }
     write(f, data, max);
-    return recno + 1;
+    return ++recno;
 }
 
 // std::ostream& operator<<(std::ostream& outs, const Record& r){

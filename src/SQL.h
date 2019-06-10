@@ -54,13 +54,13 @@ void SQL::run(){
 }
 bool SQL::transact(std::string query){
     Parser parser(query);
-    switch(parser.type){
-        case 0: 
-            // make/create table
-            break;
-        default:
-            break;
-    }
+    // switch(parser.type){
+    //     case 0: 
+    //         // make/create table
+    //         break;
+    //     default:
+    //         break;
+    // }
     return true;
 }
 

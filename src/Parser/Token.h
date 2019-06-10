@@ -32,12 +32,10 @@ int Token::type(){
 }
 std::string Token::type_string(){
     switch(_type){
-        case 0:
-            return "SPACE";
         case 1:
-            return "ALPHA";
+            return "CREATE";
         case 2:
-            return "NUMBER";
+            return "ALPHA";
         default:
             return "UNKNOWN";
     }
