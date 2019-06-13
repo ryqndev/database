@@ -22,11 +22,10 @@ Parser::Parser(std::string query){
     str[len] = '\0';
 
     STokenizer stk(str);
-    while(!stk.is_done()){
-        Token t;
-        stk >> t;   
-        std::cout << std::setw(10) << t.type_string() << std::setw(10) << t << std::endl;
-        query_info["type"] = t.type();
+    Command t;
+    stk >> t;
+    for(auto const& x : t.getCommand()){
+        std::cout << std::setw(10) << x.first << " - " <<  std::setw(10) << '|' <<  x.second << '|' << std::endl; 
     }
 }
 unsigned Parser::getCommandType(){

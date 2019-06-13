@@ -8,7 +8,7 @@
 class Command{
     public:
         Command();
-        Command(std::map<std::string, std::string> str, int type);
+        Command(std::string table, std::map<std::string, std::string> str, int type);
         int type();
         std::map<std::string, std::string> getCommand();
         
@@ -18,6 +18,7 @@ class Command{
         }
 
     private:
+        std::string _table_name;
         std::map<std::string, std::string> _command;
         int _type;
 };
@@ -25,7 +26,8 @@ Command::Command(){
     _command = std::map<std::string, std::string>();
     _type = -1;
 }
-Command::Command(std::map<std::string, std::string> str, int type){
+Command::Command(std::string table, std::map<std::string, std::string> str, int type){
+    _table_name = table;
     _command = str;
     _type = type;
 }

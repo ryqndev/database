@@ -4,7 +4,6 @@
 #include "Parser/Parser.h"
 #include "Table/Table.h"
 #include <iostream>
-#include <vector>
 
 class SQL{
     public:
@@ -28,7 +27,7 @@ class SQL{
          * @params: query - command to be executed
          */
         bool transact(std::string query);
-        std::vector<Table> tables;
+        std::map<std::string, Table> tables;
         
 };
 SQL::SQL(){
