@@ -80,7 +80,6 @@ std::map<std::string, std::string> Record::read(long recno){
     return parsed_data;
 }
 
-
 long Record::write(std::map<std::string, std::string>& entry){
     char data[max]; // doesn't need to be cstring as we already know size
     for( auto const& pair : entry ){

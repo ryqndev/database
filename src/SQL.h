@@ -27,7 +27,7 @@ class SQL{
          * @params: query - command to be executed
          */
         bool transact(std::string query);
-        std::map<std::string, Table> tables;
+        std::map<std::string, Table*> tables;
         
 };
 SQL::SQL(){
@@ -53,13 +53,22 @@ void SQL::run(){
 }
 bool SQL::transact(std::string query){
     Parser parser(query);
-    // switch(parser.type){
-    //     case 0: 
-    //         // make/create table
-    //         break;
-    //     default:
-    //         break;
-    // }
+    Command* c = &parser.query_info;
+    std::cout << c->type << std::endl;
+    switch(c->type){
+        case 0: // make table w/ only name
+            tables[c->table_name] = new Table(c->table_name); 
+            break;
+        case 1: // make table w/ fields
+            tables[c->table_name] = new Table(c->table_name, c->command); 
+            break;
+        case 2: // insert object
+            tables[c->table_name]->save_info(c->command);
+            break;
+        default:
+            std::cout << "Incorrect command" << std::endl;
+            break;
+    }
     return true;
 }
 

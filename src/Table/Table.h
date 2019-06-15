@@ -13,7 +13,8 @@ class Table{
 
         void save_info(std::map<std::string, std::string>&);
         std::map<std::string, std::string> get_info(long location);
-        std::vector<long> query();
+        void display_contents();
+        // std::vector<long> query();
 
     private: 
         // maps column names to the maps that map a value to a record(s)
@@ -60,8 +61,9 @@ std::map<std::string, std::string> Table::get_info(long location){
     return this->record.read(location);
 }
 
-std::vector<long> Table::query(){
-    return std::vector<long>();
-}
+// std::vector<long> Table::query(){
+//     return std::vector<long>();
+// }
+
 
 #endif /* TABLE_H */

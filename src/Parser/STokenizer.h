@@ -42,32 +42,50 @@ void STokenizer::get_token(int start_state, Command& t){
     std::map<std::string, std::string> command_properties;
     std::string table_name, key_holder;
     int cur_state = start_state,
+        prev_state = -1,
         state_level = 0,
-        token_type = -1;
+        token_type = -1,
+        order = 0;
     while( !(cur_state > strlen(_buffer)) && state_level != -1 ){
         switch(state_level){
             case 13:
                 start_state = cur_state;
                 break;
             case 14:
-                token_type = 1; // is create command
+                token_type = 0; // is create command
                 table_name = std::string(&_buffer[start_state], &_buffer[ cur_state]);
                 break;
-            case 22:
+            case 22: // start of field
+                token_type = -1;
+                if(prev_state == 25 || prev_state == 26){
+                    command_properties[key_holder] = std::string(&_buffer[start_state], &_buffer[cur_state - 1]);
+                }
                 start_state = cur_state;
                 break;
             case 24:
-                key_holder = std::string(&_buffer[start_state], &_buffer[ cur_state]);
+                token_type = 1;
+                if(prev_state != 24) key_holder = std::string(&_buffer[start_state], &_buffer[ cur_state - 1]);
+                start_state = cur_state;
                 break;
-            case 26:
+            case 25:
+                command_properties[key_holder] = std::string(&_buffer[start_state], &_buffer[cur_state]);
+                break;
+            case 41:
+                start_state = cur_state;
+                break;
+            case 42:
+                table_name = std::string(&_buffer[start_state], &_buffer[ cur_state ]);
+                break;
+            case 44:
+                break;
             default:
                 break;
         }
+        prev_state = state_level;
         state_level = _table[state_level][(int)_buffer[cur_state]];
         cur_state += 1;
     }
     cur_state += cur_state == start_state + 1 ? 1 : -1; // move on if invalid token
-    // command_properties = std::string(&_buffer[start_state], &_buffer[cur_state]);
     _pos = cur_state;                   // move position
     t = Command(table_name, command_properties, token_type); // sets token
 }
@@ -76,7 +94,6 @@ void STokenizer::make_table(int _table[][MAX_COLUMNS]){
     for(int i = 0 ; i < MAX_ROWS; i++){
         std::fill_n(_table[i], MAX_COLUMNS, -1);
     }
-
     //create table
     _table[0][77] = 1;      // M
     _table[1][65] = 2;      // A
@@ -90,6 +107,7 @@ void STokenizer::make_table(int _table[][MAX_COLUMNS]){
     _table[4][84] = 5;      // T
     _table[5][69] = 6;      // E
     _table[6][32] = 7;      // 
+    _table[7][32] = 7;
     _table[7][84] = 8;      // T
     _table[8][65] = 9;      // A
     _table[9][66] = 10;     // B
@@ -113,6 +131,7 @@ void STokenizer::make_table(int _table[][MAX_COLUMNS]){
     _table[10][108] = 11;   // l
     _table[11][101] = 12;   // e
     _table[12][32] = 13;    // 
+    _table[13][32] = 13;    // 
 
     // table name
     std::fill_n(&_table[13][65], 26, 14);
@@ -121,6 +140,7 @@ void STokenizer::make_table(int _table[][MAX_COLUMNS]){
     std::fill_n(&_table[14][65], 26, 14);
     std::fill_n(&_table[14][97], 26, 14);
     std::fill_n(&_table[14][48], 10, 14); //numbers after first letter
+
     _table[14][32] =  15;
     _table[15][32] =  15;
 
@@ -147,30 +167,95 @@ void STokenizer::make_table(int _table[][MAX_COLUMNS]){
     std::fill_n(&_table[22][65], 26, 23);
     std::fill_n(&_table[22][97], 26, 23);
 
-    std::fill_n(&_table[23][65], 26, 24);
-    std::fill_n(&_table[23][97], 26, 24);
-    std::fill_n(&_table[23][48], 10, 24); //numbers after first letter
+    std::fill_n(&_table[23][65], 26, 23);
+    std::fill_n(&_table[23][97], 26, 23);
+    std::fill_n(&_table[23][48], 10, 23); //numbers after first letter
 
     _table[23][32] = 24;
-    _table[24][32] = 25;
-    _table[25][32] = 25;
+    _table[24][32] = 24;
 
-    std::fill_n(&_table[25][65], 26, 26);
-    std::fill_n(&_table[25][97], 26, 26);
+    std::fill_n(&_table[24][65], 26, 25);
+    std::fill_n(&_table[24][97], 26, 25);
 
-    _table[26][32] = 27;
-    _table[26][32] = 27;
+    std::fill_n(&_table[25][65], 26, 25);
+    std::fill_n(&_table[25][97], 26, 25);
 
+    _table[25][32] = 26;
+
+    _table[25][44] = 22;
+    _table[26][44] = 22;
+
+    _table[25][0] = 1;
     _table[26][0] = 1;
-    _table[27][0] = 1;
-    // field type
-    // std::fill_n(&_table[15][65], 26, 15);
-    // std::fill_n(&_table[15][97], 26, 15);
-    // _table[15][32] =  15;
-    // _table[15][0] = 1;
 
-    // _table[15][44] =  16;   // ,
+    // insert into
 
+    _table[0][105] = 30;    // i
+    _table[30][110] = 31;   // n
+    _table[31][115] = 32;   // s
+    _table[32][101] = 33;   // e
+    _table[33][114] = 34;   // r
+    _table[34][116] = 35;   // t
+    _table[35][32] = 36;    // 
+    _table[36][32] = 36;    // 
+    _table[36][105] = 37;   // i
+    _table[37][110] = 38;   // n
+    _table[38][116] = 39;   // t
+    _table[39][111] = 40;   // o
+    _table[40][32] = 41;    // 
+    _table[41][32] = 41;    // 
+
+    _table[0][73] = 30;    // I
+    _table[30][78] = 31;   // N
+    _table[31][83] = 32;   // S
+    _table[32][69] = 33;   // E
+    _table[33][82] = 34;   // R
+    _table[34][84] = 35;   // T
+    _table[36][73] = 37;   // I
+    _table[37][78] = 38;   // N
+    _table[38][84] = 39;   // T
+    _table[39][79] = 40;   // O
+
+    std::fill_n(&_table[41][65], 26, 42);
+    std::fill_n(&_table[41][97], 26, 42);
+
+    std::fill_n(&_table[42][65], 26, 42);
+    std::fill_n(&_table[42][97], 26, 42);
+    std::fill_n(&_table[42][48], 10, 42); //numbers after first letter
+
+    _table[42][32] = 43; 
+    _table[43][32] = 43; 
+
+    _table[43][118] = 44;   // v
+    _table[44][97] = 45;    // a
+    _table[45][108] = 46;   // l
+    _table[46][117] = 47;   // u
+    _table[47][101] = 48;   // e
+    _table[48][115] = 49;   // s
+
+    _table[43][86] = 44;   // V
+    _table[44][65] = 45;   // A
+    _table[45][76] = 46;   // L
+    _table[46][85] = 47;   // U
+    _table[47][69] = 48;   // E
+    _table[48][83] = 49;   // S
+
+    _table[49][32] = 50; 
+    _table[50][32] = 50; 
+
+    std::fill_n(&_table[50][65], 26, 51);
+    std::fill_n(&_table[50][97], 26, 51);
+    std::fill_n(&_table[50][48], 10, 51);
+
+    std::fill_n(&_table[51][65], 26, 51);
+    std::fill_n(&_table[51][97], 26, 51);
+    std::fill_n(&_table[51][48], 10, 51);
+
+    _table[51][44] = 50; //comma 
+
+    _table[51][32] = 52;
+    _table[52][32] = 52;
+    _table[52][44] = 50;
 }
 STokenizer& operator >> (STokenizer& s, Command& t){
     s.get_token(s._pos, t);
