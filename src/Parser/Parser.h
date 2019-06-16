@@ -9,7 +9,7 @@
 
 struct Parser{
     Parser(std::string query);
-    Command query_info;    
+    Command query_info;
 };
 
 Parser::Parser(std::string query){
@@ -27,7 +27,9 @@ Parser::Parser(std::string query){
     // for(auto const& x : query_info.command){
     //     std::cout << std::setw(10) << '|' << x.first << '|' << " - " <<  std::setw(10) << '|' <<  x.second << '|' << std::endl; 
     // }
+    // for(auto const&x : query_info.order){
+    //     std::cout << x << std::endl;
+    // }
 }
-
 
 #endif /* PARSER_H */

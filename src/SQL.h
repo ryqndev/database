@@ -53,6 +53,12 @@ void SQL::run(){
 }
 bool SQL::transact(std::string query){
     Parser parser(query);
+    if(query == "display"){ // FIXME : remove (for debugging purposes)
+        for(auto const& x : this->tables["students"]->get_info(0)){
+            std::cout << std::setw(10) << '|' << x.first << '|' << " - " <<  std::setw(10) << '|' <<  x.second << '|' << std::endl; 
+        }
+        return true;
+    }
     Command* c = &parser.query_info;
     std::cout << c->type << std::endl;
     switch(c->type){
@@ -60,10 +66,10 @@ bool SQL::transact(std::string query){
             tables[c->table_name] = new Table(c->table_name); 
             break;
         case 1: // make table w/ fields
-            tables[c->table_name] = new Table(c->table_name, c->command); 
+            tables[c->table_name] = new Table(c->table_name, c->command, c->order); 
             break;
         case 2: // insert object
-            tables[c->table_name]->save_info(c->command);
+            tables[c->table_name]->insert_row(c->order);
             break;
         default:
             std::cout << "Incorrect command" << std::endl;

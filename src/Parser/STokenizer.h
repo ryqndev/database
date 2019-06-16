@@ -40,12 +40,12 @@ bool STokenizer::is_done(){
 }
 void STokenizer::get_token(int start_state, Command& t){
     std::map<std::string, std::string> command_properties;
+    std::vector<std::string> order;
     std::string table_name, key_holder;
     int cur_state = start_state,
         prev_state = -1,
         state_level = 0,
-        token_type = -1,
-        order = 0;
+        token_type = -1;
     while( !(cur_state > strlen(_buffer)) && state_level != -1 ){
         switch(state_level){
             case 13:
@@ -65,6 +65,7 @@ void STokenizer::get_token(int start_state, Command& t){
             case 24:
                 token_type = 1;
                 if(prev_state != 24) key_holder = std::string(&_buffer[start_state], &_buffer[ cur_state - 1]);
+                order.push_back(key_holder);
                 start_state = cur_state;
                 break;
             case 25:
@@ -76,7 +77,14 @@ void STokenizer::get_token(int start_state, Command& t){
             case 42:
                 table_name = std::string(&_buffer[start_state], &_buffer[ cur_state ]);
                 break;
-            case 44:
+            case 50: // FIXME : cannot have spaces after insert values
+                order.push_back(std::string(&_buffer[start_state], &_buffer[cur_state - 1])); 
+                start_state = cur_state;
+                break;
+            case 51:
+                token_type = 2;
+                order.pop_back(); // super hacky - please fix when writing new string tokenizer
+                order.push_back(std::string(&_buffer[start_state], &_buffer[cur_state]));
                 break;
             default:
                 break;
@@ -87,7 +95,7 @@ void STokenizer::get_token(int start_state, Command& t){
     }
     cur_state += cur_state == start_state + 1 ? 1 : -1; // move on if invalid token
     _pos = cur_state;                   // move position
-    t = Command(table_name, command_properties, token_type); // sets token
+    t = Command(table_name, command_properties, token_type, order); // sets token
 }
 void STokenizer::make_table(int _table[][MAX_COLUMNS]){
     //set all values to fail states

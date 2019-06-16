@@ -9,8 +9,9 @@
 class Table{
     public:
         Table(std::string);
-        Table(std::string, std::map<std::string, std::string>&);
+        Table(std::string, std::map<std::string, std::string>&, std::vector<std::string>);
 
+        void insert_row(std::vector<std::string> row);
         void save_info(std::map<std::string, std::string>&);
         std::map<std::string, std::string> get_info(long location);
         void display_contents();
@@ -19,7 +20,7 @@ class Table{
     private: 
         // maps column names to the maps that map a value to a record(s)
         std::map<std::string, std::map<std::string, std::vector<long> > > columns;
-
+        std::vector<std::string> order;
         // record will be a way to read and write the data on disk
         Record record;
         std::string table_name;
@@ -29,7 +30,7 @@ Table::Table(std::string table_name){
     this->table_name = table_name;
 }
 
-Table::Table(std::string table_name, std::map<std::string, std::string>& table_contents){
+Table::Table(std::string table_name, std::map<std::string, std::string>& table_contents, std::vector<std::string> order){
     this->table_name = table_name;
     std::map<std::string, EntryLocation> location_of;
 
@@ -44,7 +45,16 @@ Table::Table(std::string table_name, std::map<std::string, std::string>& table_c
         record_size += record.data_sizes[col_data.second];  // get size of record
         location_of[col_data.first].end = record_size;      // location end in record
     }
+    this->order = order;
     this->record = Record(location_of, record_size, table_name);
+}
+
+void Table::insert_row(std::vector<std::string> row){
+    std::map<std::string, std::string> row_data;
+    for(auto a = row.begin(), b = order.begin(); a != row.end() && b != order.end(); a++, b++){
+        row_data[*b] = *a;
+    }
+    save_info(row_data);
 }
 
 void Table::save_info(std::map<std::string, std::string>& row){

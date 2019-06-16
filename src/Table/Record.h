@@ -87,6 +87,11 @@ long Record::write(std::map<std::string, std::string>& entry){
         strncpy(data + location_of[pair.first].start, temp, strlen(temp));
         data[location_of[pair.first].start + strlen(temp) + 1 ] = '\0';
     }
+    std::cout << "start of write" << std::endl;
+    for(int i = 0; i < max; i++){
+        std::cout << data[i];
+    }
+    std::cout << std::endl;
     write(f, data, max);
     return ++recno;
 }
