@@ -140,7 +140,6 @@ void STokenizer::get_token(int start_state, Command& t){
             case 90:
                 if(prev_state == 98 || prev_state == 99){
                     c_temp.value = std::string(&_buffer[start_state], &_buffer[cur_state]);
-                    std::cout << c_temp.value << std::endl;
                     conditions.push_back(c_temp);
                 } 
                 break;
@@ -164,7 +163,6 @@ void STokenizer::get_token(int start_state, Command& t){
         state_level = _table[state_level][(int)_buffer[cur_state]];
         cur_state += 1;
     }
-    if(!conditions.empty()) std::cout << conditions[0] << std::endl;
     cur_state += cur_state == start_state + 1 ? 1 : -1; // move on if invalid token
     _pos = cur_state;                   // move position
     t = Command(table_name, command_properties, token_type, order, conditions); // sets token

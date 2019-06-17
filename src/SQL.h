@@ -31,16 +31,16 @@ class SQL{
         
 };
 SQL::SQL(){
-    std::cout << "Database started." << std::endl;
+    // std::cout << "Database started." << std::endl;
 }
 
 SQL::~SQL(){
-    std::cout << "Shutting down database." << std::endl;
+    // std::cout << "Shutting down database." << std::endl;
 }
 void SQL::run(){
     while(true){
         std::string query;
-        std::cout << "> ";  // prompt user command
+        // std::cout << "> ";  // prompt user command
         getline(std::cin, query);
         
         bool success = transact(query);
@@ -77,7 +77,7 @@ bool SQL::transact(std::string query){
             tables[c->table_name]->display_contents(c->conditions);
             break;
         default:
-            std::cout << "Incorrect command" << std::endl;
+            // std::cout << "Incorrect command" << std::endl;
             break;
     }
     return true;

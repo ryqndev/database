@@ -31,6 +31,7 @@ class Table{
         Record record;
         std::string table_name;
 };
+
 void Table::debug(){
     for(auto& x : columns){
         std::cout << "Column: " << x.first << std::endl;
@@ -91,23 +92,43 @@ Map<std::string, std::string> Table::get_info(long location){
 
 void Table::display_contents(std::vector<Condition> conditions){
     std::vector<long> results = query(conditions);
-    std::cout << "\n Table Name: " << table_name << ", Records: " << results.size() << "\n\n";
-    std::cout << std::setw(20) << "record";
-    for(auto a = order.begin(); a != order.end(); a++){
-        std::cout << std::setw(20) << *a;
-    }
-    std::cout << std::endl << std::endl;
-    int i = 0;
-    for(auto a = results.begin(); a != results.end(); a++, i++){
-        std::cout << std::setw(20) << i;
+    std::cout << '[';
+    for(auto a = results.begin(); a != results.end(); a++){
         Map<std::string, std::string> result = record.read(*a);
+        std::cout << "{ ";
         for(auto b = order.begin(); b != order.end(); b++){
-            std::cout << std::setw(20) << result[*b];
+            std::cout << "\"" << *b << "\"" << " : \"" << result[*b] << "\"";
+            if(b+1 != order.end()){
+                std::cout << ",";
+            }
         }
-        std::cout << std::endl;
+        std::cout << " }";
+        if(a+1 != results.end()){
+            std::cout << ",";
+        }
     }
-    std::cout << std::endl;
+    std::cout << " ]";
 }
+// void Table::display_contents(std::vector<Condition> conditions){
+//     std::vector<long> results = query(conditions);
+//     std::cout << "\n Table Name: " << table_name << ", Records: " << results.size() << "\n\n";
+//     std::cout << std::setw(20) << "record";
+//     for(auto a = order.begin(); a != order.end(); a++){
+//         std::cout << std::setw(20) << *a;
+//     }
+//     std::cout << std::endl << std::endl;
+//     int i = 0;
+//     for(auto a = results.begin(); a != results.end(); a++, i++){
+//     //     std::cout << std::setw(20) << i;
+//         Map<std::string, std::string> result = record.read(*a);
+//         for(auto b = order.begin(); b != order.end(); b++){
+//             std::cout << std::setw(20) << result[*b];
+//         }
+//         std::cout << std::endl;
+//     }
+//     std::cout << std::endl;
+// }
+
 std::vector<long> Table::query(std::vector<Condition>& conditions){
     std::vector<long> query;
     if(conditions.empty()){

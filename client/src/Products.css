@@ -1,0 +1,12 @@
+.product-holder{
+    width: 80vw;
+    margin: 10vw;
+    display: grid;
+    row-gap: 20px;
+    column-gap: 20px;
+}
+@media (min-width: 900px){
+    .product-holder{
+        grid-template-columns: 40vw 40vw;
+    }
+}
