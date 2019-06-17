@@ -27,7 +27,7 @@ class SQL{
          * @params: query - command to be executed
          */
         bool transact(std::string query);
-        std::map<std::string, Table*> tables;
+        Map<std::string, Table*> tables;
         
 };
 SQL::SQL(){
@@ -53,14 +53,16 @@ void SQL::run(){
 }
 bool SQL::transact(std::string query){
     Parser parser(query);
-    if(query == "display"){ // FIXME : remove (for debugging purposes)
-        for(auto const& x : this->tables["students"]->get_info(0)){
-            std::cout << std::setw(10) << '|' << x.first << '|' << " - " <<  std::setw(10) << '|' <<  x.second << '|' << std::endl; 
+    if(query == "debug"){
+        for(auto& x : tables){
+            std::cout << "Table: " << x.first << std::endl;
+            x.second->debug();
         }
+        return true;
+    }else if(query == ""){
         return true;
     }
     Command* c = &parser.query_info;
-    std::cout << c->type << std::endl;
     switch(c->type){
         case 0: // make table w/ only name
             tables[c->table_name] = new Table(c->table_name); 
@@ -70,6 +72,9 @@ bool SQL::transact(std::string query){
             break;
         case 2: // insert object
             tables[c->table_name]->insert_row(c->order);
+            break;
+        case 3: //display
+            tables[c->table_name]->display_contents(c->conditions);
             break;
         default:
             std::cout << "Incorrect command" << std::endl;

@@ -1,5 +1,7 @@
 #ifndef RECORD_H
 #define RECORD_H
+#define Map std::map
+
 
 #include "EntryLocation.h"
 #include <map>
@@ -14,33 +16,33 @@ void open_fileW(std::fstream& f, const char filename[]);
 class Record{
     public:
         Record():max(0), recno(-1){}
-        Record(std::map<std::string, EntryLocation> location_of, unsigned max, std::string table_name):recno(-1){
+        Record(Map<std::string, EntryLocation> location_of, unsigned max, std::string table_name):recno(-1){
             this->location_of = location_of;
             this->max = max;
             file_name = table_name + ".bin";
             open_fileRW(this->f, file_name.c_str() );
         }
 
-        std::map<std::string, std::string> read(long recno);
-        long write(std::map<std::string, std::string>& entry);
+        Map<std::string, std::string> read(long recno);
+        long write(Map<std::string, std::string>& entry);
 
         // TODO - a write specifically to a certain recno
-        // void write(std::map<std::string, std::string> entry, long recno);
+        // void write(Map<std::string, std::string> entry, long recno);
 
         friend std::ostream& operator<<(std::ostream& outs, const Record& r);
-        static std::map<std::string, unsigned> data_sizes;
+        static Map<std::string, unsigned> data_sizes;
+        int recno;
 
     private:
-        int recno;
         unsigned max;
         std::fstream f;
         std::string file_name;
-        std::map<std::string, EntryLocation> location_of; 
+        Map<std::string, EntryLocation> location_of; 
 
         long write(std::fstream& outs, char* data, unsigned size);
         long read(std::fstream& ins, long recno, char* data, unsigned size);
 };
-std::map<std::string, unsigned> Record::data_sizes = {
+Map<std::string, unsigned> Record::data_sizes = {
     { "string", 100 },
     { "unsigned", 20 }
 };
@@ -62,13 +64,13 @@ long Record::read(std::fstream& ins, long recno, char* data, unsigned size){
 }
 std::string extract(char* start, char* end){
     char* i;
-    for(i = start; i < end && *i != '\0'; i++);
-    return std::string(start, i - 1);
+    for(i = start; i != end && *i != '\0'; i++);
+    return std::string(start, i);
 }
-std::map<std::string, std::string> Record::read(long recno){
+Map<std::string, std::string> Record::read(long recno){
     char* raw_data = new char[max];
     read(f, recno, raw_data, max);
-    std::map<std::string, std::string> parsed_data;
+    Map<std::string, std::string> parsed_data;
     for( auto const& pair : location_of){
         parsed_data[pair.first] = 
             extract(
@@ -80,26 +82,16 @@ std::map<std::string, std::string> Record::read(long recno){
     return parsed_data;
 }
 
-long Record::write(std::map<std::string, std::string>& entry){
+long Record::write(Map<std::string, std::string>& entry){
     char data[max]; // doesn't need to be cstring as we already know size
     for( auto const& pair : entry ){
         const char* temp = pair.second.c_str();
         strncpy(data + location_of[pair.first].start, temp, strlen(temp));
-        data[location_of[pair.first].start + strlen(temp) + 1 ] = '\0';
+        data[location_of[pair.first].start + strlen(temp) ] = '\0';
     }
-    std::cout << "start of write" << std::endl;
-    for(int i = 0; i < max; i++){
-        std::cout << data[i];
-    }
-    std::cout << std::endl;
     write(f, data, max);
     return ++recno;
 }
-
-// std::ostream& operator<<(std::ostream& outs, const Record& r){
-//     outs<<r.record;
-//     return outs;
-// } 
 
 bool file_exists(const char filename[]){
     const bool debug = false;

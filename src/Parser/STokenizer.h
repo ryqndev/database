@@ -39,9 +39,11 @@ bool STokenizer::is_done(){
     return _pos > strlen(_buffer);
 }
 void STokenizer::get_token(int start_state, Command& t){
-    std::map<std::string, std::string> command_properties;
+    Map<std::string, std::string> command_properties;
     std::vector<std::string> order;
+    std::vector<Condition> conditions;
     std::string table_name, key_holder;
+    Condition c_temp;
     int cur_state = start_state,
         prev_state = -1,
         state_level = 0,
@@ -71,20 +73,89 @@ void STokenizer::get_token(int start_state, Command& t){
             case 25:
                 command_properties[key_holder] = std::string(&_buffer[start_state], &_buffer[cur_state]);
                 break;
+
+
             case 41:
                 start_state = cur_state;
                 break;
             case 42:
+                token_type = 2;
                 table_name = std::string(&_buffer[start_state], &_buffer[ cur_state ]);
                 break;
             case 50: // FIXME : cannot have spaces after insert values
-                order.push_back(std::string(&_buffer[start_state], &_buffer[cur_state - 1])); 
                 start_state = cur_state;
                 break;
             case 51:
                 token_type = 2;
-                order.pop_back(); // super hacky - please fix when writing new string tokenizer
+                if(prev_state == 51) order.pop_back(); // super hacky - please fix when writing new string tokenizer
                 order.push_back(std::string(&_buffer[start_state], &_buffer[cur_state]));
+                break;
+            case 52:
+                if(prev_state == 54 || prev_state == 55){
+                    order.push_back(std::string(&_buffer[start_state], &_buffer[cur_state - 1]));
+                }
+                break;
+            case 54:
+                start_state = cur_state;
+                break;
+
+            case 73:
+                start_state = cur_state;
+                break;
+            case 74:
+                token_type = 3;
+                table_name = std::string(&_buffer[start_state], &_buffer[cur_state]);
+                break;
+            case 81:
+                start_state = cur_state;
+                break;
+            case 82:
+                c_temp.column_name = std::string(&_buffer[start_state], &_buffer[cur_state]);
+                break;
+            case 84:
+                start_state = cur_state;
+                c_temp.operand = 0;
+                break;
+            case 85:
+                start_state = cur_state;
+                c_temp.operand = 4;
+                break;
+            case 86:
+                start_state = cur_state;
+                c_temp.operand = 1;
+                break;
+            case 87:
+                start_state = cur_state;
+                c_temp.operand = 2;
+                break;
+            case 88:
+                start_state = cur_state;
+                c_temp.operand = 3;
+                break;
+            case 89:
+                if(prev_state == 89) conditions.pop_back();
+                c_temp.value = std::string(&_buffer[start_state], &_buffer[cur_state]);
+                conditions.push_back(c_temp);
+                break;
+            case 90:
+                if(prev_state == 98 || prev_state == 99){
+                    c_temp.value = std::string(&_buffer[start_state], &_buffer[cur_state]);
+                    std::cout << c_temp.value << std::endl;
+                    conditions.push_back(c_temp);
+                } 
+                break;
+            case 93:
+                c_temp.connector = 1;
+                conditions.pop_back();
+                conditions.push_back(c_temp);
+                break;
+            case 95:
+                c_temp.connector = 2;
+                conditions.pop_back();
+                conditions.push_back(c_temp);
+                break;
+            case 98:
+                start_state = cur_state;
                 break;
             default:
                 break;
@@ -93,9 +164,10 @@ void STokenizer::get_token(int start_state, Command& t){
         state_level = _table[state_level][(int)_buffer[cur_state]];
         cur_state += 1;
     }
+    if(!conditions.empty()) std::cout << conditions[0] << std::endl;
     cur_state += cur_state == start_state + 1 ? 1 : -1; // move on if invalid token
     _pos = cur_state;                   // move position
-    t = Command(table_name, command_properties, token_type, order); // sets token
+    t = Command(table_name, command_properties, token_type, order, conditions); // sets token
 }
 void STokenizer::make_table(int _table[][MAX_COLUMNS]){
     //set all values to fail states
@@ -103,6 +175,8 @@ void STokenizer::make_table(int _table[][MAX_COLUMNS]){
         std::fill_n(_table[i], MAX_COLUMNS, -1);
     }
     //create table
+    _table[0][32] = 0;      // M
+
     _table[0][77] = 1;      // M
     _table[1][65] = 2;      // A
     _table[2][75] = 3;      // K
@@ -249,7 +323,14 @@ void STokenizer::make_table(int _table[][MAX_COLUMNS]){
     _table[48][83] = 49;   // S
 
     _table[49][32] = 50; 
-    _table[50][32] = 50; 
+    _table[50][32] = 50;
+
+    _table[50][34] = 54;
+    std::fill_n(&_table[54][32], 93, 55);
+    std::fill_n(&_table[55][32], 93, 55);
+    _table[54][34] = 52;
+    _table[55][34] = 52;
+
 
     std::fill_n(&_table[50][65], 26, 51);
     std::fill_n(&_table[50][97], 26, 51);
@@ -260,10 +341,125 @@ void STokenizer::make_table(int _table[][MAX_COLUMNS]){
     std::fill_n(&_table[51][48], 10, 51);
 
     _table[51][44] = 50; //comma 
+    _table[51][0] = 1;
 
     _table[51][32] = 52;
     _table[52][32] = 52;
     _table[52][44] = 50;
+
+    //select command
+
+    _table[0][115] = 60;    // s
+    _table[60][101] = 61;   // e
+    _table[61][108] = 62;   // l
+    _table[62][101] = 63;   // e
+    _table[63][99] = 64;    // c
+    _table[64][116] = 65;   // t
+    _table[65][32] = 66;    // 
+    _table[66][32] = 66;    // 
+    _table[66][42] = 67;    // *
+    _table[67][32] = 68;    // 
+    _table[68][32] = 68;    // 
+    _table[68][102] = 69;   // f
+    _table[69][114] = 70;   // r
+    _table[70][111] = 71;   // o
+    _table[71][109] = 72;   // m
+    _table[72][32] = 73;    // 
+    _table[73][32] = 73;    // 
+
+    std::fill_n(&_table[73][65], 26, 74);
+    std::fill_n(&_table[73][97], 26, 74);
+
+    std::fill_n(&_table[74][65], 26, 74);
+    std::fill_n(&_table[74][97], 26, 74);
+    std::fill_n(&_table[74][48], 10, 74); //numbers after first letter
+
+    _table[74][32] = 75;  
+    _table[75][32] = 75;  
+
+    _table[75][119] = 76;   // w
+    _table[76][104] = 77;   // h
+    _table[77][101] = 78;   // e
+    _table[78][114] = 79;   // r
+    _table[79][101] = 80;   // e
+
+    _table[80][32] = 81;  
+    _table[81][32] = 81;  
+
+    // column name
+    std::fill_n(&_table[81][65], 26, 82);
+    std::fill_n(&_table[81][97], 26, 82);
+
+    std::fill_n(&_table[82][65], 26, 82);
+    std::fill_n(&_table[82][97], 26, 82);
+    std::fill_n(&_table[82][48], 10, 82); //numbers after first letter
+
+    _table[82][32] = 83;  
+    _table[83][32] = 83;
+
+    _table[82][60] = 84;  // < 
+    _table[82][61] = 85;  // =
+    _table[82][62] = 86;  // > 
+
+    _table[83][60] = 84;  
+    _table[83][61] = 85;  
+    _table[83][62] = 86;  
+
+    _table[84][61] = 87;  // <=
+    _table[86][61] = 88;  // >=
+
+    _table[84][32] = 84;  
+    _table[85][32] = 85;
+    _table[86][32] = 86;
+    _table[87][32] = 87;
+    _table[88][32] = 88;
+
+    _table[84][34] = 98;
+    std::fill_n(&_table[98][32], 93, 99);
+    std::fill_n(&_table[99][32], 93, 99);
+    _table[99][34] = 90;
+
+    std::fill_n(&_table[84][65], 26, 89);
+    std::fill_n(&_table[84][97], 26, 89);
+    std::fill_n(&_table[84][48], 10, 89);
+
+    std::fill_n(&_table[85][65], 26, 89);
+    std::fill_n(&_table[85][97], 26, 89);
+    std::fill_n(&_table[85][48], 10, 89);
+
+    std::fill_n(&_table[85][65], 26, 89);
+    std::fill_n(&_table[85][97], 26, 89);
+    std::fill_n(&_table[85][48], 10, 89);
+
+    std::fill_n(&_table[86][65], 26, 89);
+    std::fill_n(&_table[86][97], 26, 89);
+    std::fill_n(&_table[86][48], 10, 89);
+
+    std::fill_n(&_table[87][65], 26, 89);
+    std::fill_n(&_table[87][97], 26, 89);
+    std::fill_n(&_table[87][48], 10, 89);
+
+    std::fill_n(&_table[88][65], 26, 89);
+    std::fill_n(&_table[88][97], 26, 89);
+    std::fill_n(&_table[88][48], 10, 89);
+
+    std::fill_n(&_table[89][65], 26, 89);
+    std::fill_n(&_table[89][97], 26, 89);
+    std::fill_n(&_table[89][48], 10, 89);
+
+    _table[89][32] = 90;
+    _table[90][32] = 90;
+
+    _table[90][97] = 91; // a
+    _table[91][32] = 92; // n
+    _table[92][32] = 93; // d
+
+    _table[90][97] = 94; // o
+    _table[94][32] = 95; // r
+
+    _table[93][32] = 81;
+    _table[95][32] = 81;
+
 }
 STokenizer& operator >> (STokenizer& s, Command& t){
     s.get_token(s._pos, t);
