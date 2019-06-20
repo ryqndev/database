@@ -90,44 +90,44 @@ Map<std::string, std::string> Table::get_info(long location){
     return this->record.read(location);
 }
 
-void Table::display_contents(std::vector<Condition> conditions){
-    std::vector<long> results = query(conditions);
-    std::cout << '[';
-    for(auto a = results.begin(); a != results.end(); a++){
-        Map<std::string, std::string> result = record.read(*a);
-        std::cout << "{ ";
-        for(auto b = order.begin(); b != order.end(); b++){
-            std::cout << "\"" << *b << "\"" << " : \"" << result[*b] << "\"";
-            if(b+1 != order.end()){
-                std::cout << ",";
-            }
-        }
-        std::cout << " }";
-        if(a+1 != results.end()){
-            std::cout << ",";
-        }
-    }
-    std::cout << " ]";
-}
 // void Table::display_contents(std::vector<Condition> conditions){
 //     std::vector<long> results = query(conditions);
-//     std::cout << "\n Table Name: " << table_name << ", Records: " << results.size() << "\n\n";
-//     std::cout << std::setw(20) << "record";
-//     for(auto a = order.begin(); a != order.end(); a++){
-//         std::cout << std::setw(20) << *a;
-//     }
-//     std::cout << std::endl << std::endl;
-//     int i = 0;
-//     for(auto a = results.begin(); a != results.end(); a++, i++){
-//     //     std::cout << std::setw(20) << i;
+//     std::cout << '[';
+//     for(auto a = results.begin(); a != results.end(); a++){
 //         Map<std::string, std::string> result = record.read(*a);
+//         std::cout << "{ ";
 //         for(auto b = order.begin(); b != order.end(); b++){
-//             std::cout << std::setw(20) << result[*b];
+//             std::cout << "\"" << *b << "\"" << " : \"" << result[*b] << "\"";
+//             if(b+1 != order.end()){
+//                 std::cout << ",";
+//             }
 //         }
-//         std::cout << std::endl;
+//         std::cout << " }";
+//         if(a+1 != results.end()){
+//             std::cout << ",";
+//         }
 //     }
-//     std::cout << std::endl;
+//     std::cout << " ]";
 // }
+void Table::display_contents(std::vector<Condition> conditions){
+    std::vector<long> results = query(conditions);
+    std::cout << "\n Table Name: " << table_name << ", Records: " << results.size() << "\n\n";
+    std::cout << std::setw(20) << "record";
+    for(auto a = order.begin(); a != order.end(); a++){
+        std::cout << std::setw(20) << *a;
+    }
+    std::cout << std::endl << std::endl;
+    int i = 0;
+    for(auto a = results.begin(); a != results.end(); a++, i++){
+        std::cout << std::setw(20) << i;
+        Map<std::string, std::string> result = record.read(*a);
+        for(auto b = order.begin(); b != order.end(); b++){
+            std::cout << std::setw(20) << result[*b];
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+}
 
 std::vector<long> Table::query(std::vector<Condition>& conditions){
     std::vector<long> query;
@@ -135,6 +135,17 @@ std::vector<long> Table::query(std::vector<Condition>& conditions){
         for(int i = 0; i <= record.recno; i++) query.push_back(i);
         return query;
     }
+    // for(auto x : conditions){
+    //     switch(x.connector){
+    //         case 0:
+    //             query = filter(x);
+    //             break;
+    //         case 1:
+    //         case 2:
+    //             break;
+    //     }
+    // }
+    // return query;
     return filter(conditions[0]);
 }
 
@@ -143,6 +154,10 @@ std::vector<long> Table::filter(Condition& c){
     switch(c.operand){
         case 2: // <=
             query.insert( query.end(), columns[c.column_name][c.value].begin(), columns[c.column_name][c.value].end());
+            for(auto x = columns[c.column_name].begin(); x != --columns[c.column_name].upper_bound(c.value); x++){
+                query.insert( query.end(), (*x).second.begin(), (*x).second.end());
+            }
+            break;
         case 0: // <
             for(auto x = columns[c.column_name].begin(); x != --columns[c.column_name].upper_bound(c.value); x++){
                 query.insert( query.end(), (*x).second.begin(), (*x).second.end());
@@ -150,6 +165,10 @@ std::vector<long> Table::filter(Condition& c){
             break;
         case 3: // >=
             query.insert( query.end(), columns[c.column_name][c.value].begin(), columns[c.column_name][c.value].end());
+            for(auto x = ++columns[c.column_name].lower_bound(c.value); x != columns[c.column_name].end(); x++){
+                query.insert( query.end(), (*x).second.begin(), (*x).second.end());
+            }
+            break;
         case 1: // >
             for(auto x = ++columns[c.column_name].lower_bound(c.value); x != columns[c.column_name].end(); x++){
                 query.insert( query.end(), (*x).second.begin(), (*x).second.end());

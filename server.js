@@ -65,8 +65,8 @@ async function execPromise (command, args) {
 let setup = [
     'make table products fields itemName string, itemDescription string, itemImage string, rating unsigned, price unsigned\n',
     'insert into products values "Cheesecake", "Simple cheesecake that tastes good.", "https://www.jocooks.com/wp-content/uploads/2018/11/new-york-style-cheesecake-1-2.jpg", 3, 2099\n',
-    'insert into products values "Ice Cream Cake", "Cake but with ice cream.", "https://www.lifeloveandsugar.com/wp-content/uploads/2014/10/Mocha_Brownie_Ice_Cream_Cake13.jpg", 4, 1699\n',
-    'insert into products values "Lasagna", "Some warm hot Italian food that is hecka good.", "https://www.thewholesomedish.com/wp-content/uploads/2018/07/Best-Lasagna-550.jpg", 3, 999\n',
+    'insert into products values "Ice Cream Cake", "Cake but with ice cream.", "https://www.lifeloveandsugar.com/wp-content/uploads/2014/10/Mocha_Brownie_Ice_Cream_Cake13.jpg", 4, 2899\n',
+    'insert into products values "Lasagna", "Some warm hot Italian food that is hecka good.", "https://www.thewholesomedish.com/wp-content/uploads/2018/07/Best-Lasagna-550.jpg", 3, 2599\n',
     'select * from products\n'
 ];
 

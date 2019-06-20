@@ -59,9 +59,10 @@ bool SQL::transact(std::string query){
             x.second->debug();
         }
         return true;
-    }else if(query == ""){
+    }else if(query == "" || query[0] == '/' || query[1] == '/'){
         return true;
     }
+    std::cout << query << std::endl;
     Command* c = &parser.query_info;
     switch(c->type){
         case 0: // make table w/ only name
